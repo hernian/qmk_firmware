@@ -1,0 +1,3 @@
+#!/bin/sh
+make runner3680/5x6:hernian
+cp runner3680_5x6_hernian.hex /mnt/d/qmk_hex

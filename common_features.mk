@@ -674,3 +674,8 @@ ifeq ($(strip $(USBPD_ENABLE)), yes)
         endif
     endif
 endif
+
+ifeq ($(strip $(USJP_ENABLE)), yes)
+    SRC += $(QUANTUM_DIR)/usjp.cpp
+	OPT_DEFS += -DUSJP_ENABLE
+endif

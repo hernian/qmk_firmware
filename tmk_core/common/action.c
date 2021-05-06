@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "action_util.h"
 #include "action.h"
 #include "wait.h"
-#include "usjp.h"
 
 #ifdef BACKLIGHT_ENABLE
 #    include "backlight.h"
@@ -981,9 +980,6 @@ void clear_keyboard_but_mods_and_keys() {
 #endif
     clear_weak_mods();
     clear_macro_mods();
-#ifdef USJP_ENABLE
-    clear_usjp();
-#endif
     send_keyboard_report();
 #ifdef MOUSEKEY_ENABLE
     mousekey_clear();

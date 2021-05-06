@@ -26,22 +26,16 @@ enum layer_number {
 #define KC_NFER 0x8b
 
 
-// Fillers to make layering more clear
-#define EISU LALT(KC_GRV)
-
-
-enum custom_keycode {
-	KC_MLCK = SAFE_RANGE,
-	KC_CFHR = LCTL(KC_U),
-	KC_CFKT = LCTL(KC_I),
-	KC_CFES = LCTL(KC_P),
-	KC_CHES = LCTL(KC_T)
-};
+#define KC_CFHR LCTL(KC_U)  // 全角ひらがな変換
+#define KC_CFKT LCTL(KC_I)  // 全角カタカナ変換
+#define KC_CFES LCTL(KC_P)  // 全角英数変換
+#define KC_CHES LCTL(KC_T)  // 半角英数変換
+#define KC_MLCK SAFE_RANGE
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-    /* QWERTY
+    /* COLEMAK
      * ,------------------------------------------------.      ,------------------------------------------------.
      * | ERC  |   Q  |   W  |   F  |   P  |   G  |      |      |      |   J  |   L  |   U  |   Y  |   :  |   -  |
      * |------+------+------+------+------+------+------|      |------+------+------+------+------+------+------|
@@ -88,14 +82,19 @@ uint16_t keycode_prev = 0x00;
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // USJP
+    // キーボード側は英語配列でも、PC側のキーボード配列設定が日本語(109)にできる機能。
+    // 例：Shift+2 で @ を入力する。
     bool res = process_usjp(keycode, record);
     if (!res){
         return false;
     }
-    bool is_tapped = !record->event.pressed && (keycode == keycode_prev);
-    keycode_prev = keycode;
 
-    if (keycode ==KC_MLCK) {
+    // モディファイアロック
+    // KC_MLCKの押下中にモディファイア・レイヤーキーを押下するとそのキーがロックされる。
+    // KC_MLCKを放すとロックされたキー郡も放される。
+    // 例：Ctrl+Alt+Delは、KC_MLCKを押下しながら、順にCtrl, Alt, Delを入力する。
+    if (keycode == KC_MLCK) {
         is_mod_lock = record->event.pressed;
         if (locked_mods != 0x00){
             unregister_mods(locked_mods);
@@ -120,6 +119,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 layer_on(LAYER_LOWER);
             }
+            // キー開放は無視する
             return false;
         }
         return true;
@@ -129,10 +129,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 layer_on(LAYER_RAISE);
             }
+            // キー開放は無視する
             return false;
         }
         return true;
     }
+
+    // 無変換キーは単体クリックで「無変換」として動作する。
+    // 無変換押下中はIMMレイヤーが有効になる。
+    // qmkのタップは癖があるので独自に実装した。
+    bool is_tapped = !record->event.pressed && (keycode == keycode_prev);
+    keycode_prev = keycode;
     if (keycode == KC_NFER) {
         if (record->event.pressed) {
             layer_on(LAYER_IMM);
@@ -146,8 +153,3 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
-
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    post_process_usjp(keycode, record);
-}
-

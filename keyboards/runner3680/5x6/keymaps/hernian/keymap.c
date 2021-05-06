@@ -148,7 +148,3 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
-
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    post_process_usjp(keycode, record);
-}

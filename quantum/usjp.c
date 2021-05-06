@@ -5,6 +5,8 @@
 #include <string.h>
 #if defined(__AVR__)
 #    include <avr/pgmspace.h>
+#else
+#   define PROGMEM
 #endif
 #include "action.h"
 #include "action_util.h"
@@ -32,12 +34,6 @@
 #define KC_JP_YEN   0x89
 
 #define NUM_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
-
-typedef enum  {
-    SHIFT_MODE_NORMAL = 0,
-    SHIFT_MODE_DOWN = 1,
-    SHIFT_MODE_UP = 2
-} shift_mode_t;
 
 
 typedef struct {
@@ -254,6 +250,10 @@ bool process_usjp(uint16_t keycode, keyrecord_t* record) {
         REGISTER_CODE(desc_kc_dst);
         return false;
     }
+    if (keycode == KC_LSFT || keycode == KC_RSFT){
+        save_shifts &= ~MOD_BIT(keycode);
+        return true;
+    }
     uint8_t kc_dst = del_down_key(record->event.key);
     if (kc_dst != 0x00) {
         UNREGISTER_CODE(kc_dst);
@@ -261,15 +261,4 @@ bool process_usjp(uint16_t keycode, keyrecord_t* record) {
         return false;
     }
     return true;
-}
-
-void post_process_usjp(uint16_t keycode, keyrecord_t* record) {
-#ifdef CONSOLE_ENABLE
-    uint8_t mods = get_mods();
-    uprintf("post_process_usjp: %04X, %b, %02X\n", keycode, record->event.pressed, mods);
-#endif
-}
-
-void clear_usjp(void) {
-    DEBUG_PRINT("clear_usjp\n")
 }
